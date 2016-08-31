@@ -1,0 +1,26 @@
+elastic:
+  image: kallin/docker-elastic
+  command: /docker-entrypoint.sh -Des.network.host=0.0.0.0
+  ports:
+    - 42001:9200
+    - 42002:9300
+
+kibana:
+  image: kallin/docker-kibana
+  ports:
+    - 42003:5601
+  links:
+    - elastic:elasticsearch
+
+logstash:
+    image: logstash:2.1.0
+    expose:
+        - 42004
+    ports:
+        - 42004:12201
+        - 42004:12201/udp
+    volumes:
+        - ./conf:/conf
+    links:
+        - elastic
+    command: logstash -f /conf/gelf.conf
